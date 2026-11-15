@@ -17,7 +17,7 @@ export class HydraStore {
   }
 
   // Runs one statement and follows next_cursor so a large result is never silently cut short.
-  async q(query, parameters = {}) {
+  async q(query, parameters = {}, timeoutMs = this.timeoutMs) {
     const all = [];
     let cursor, queryId;
     for (let page = 0; page < 100; page++) {
@@ -27,7 +27,7 @@ export class HydraStore {
         headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json" },
         // later pages must name the first page's query_id along with the cursor
         body: JSON.stringify({ cell_id: this.cell, query, parameters, page_size: PAGE, ...(cursor != null ? { cursor, query_id: queryId } : {}) }),
-        signal: AbortSignal.timeout(this.timeoutMs),
+        signal: AbortSignal.timeout(timeoutMs),
       });
       const text = await res.text();
       if (!res.ok) throw new Error(`HydraDB ${res.status}: ${text.slice(0, 300)}`);
@@ -47,8 +47,9 @@ export class HydraStore {
     }
   }
 
+  // delete rule by rule: one statement over ~20k edges is too slow for a 0.1-CPU box
   async clear() {
-    await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) DELETE r");
+    for (const rule of Object.keys(RULE_NO)) await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) WHERE r.rule = $rule DELETE r", { rule }, 180000);
     this.pairs.clear(); this.cache.clear();
   }
 
@@ -66,6 +67,7 @@ export class HydraStore {
         // HydraDB 0.4.0: a batched relationship MERGE must key on {id: row.<field>}
         "UNWIND $rows AS row MATCH (a:Doc {id: row.a}), (b:Doc {id: row.b}) MERGE (a)-[e:MENTIONS {id: row.id}]->(b) SET e.rule = row.r",
         { rows: fresh.slice(i, i + BATCH) },
+        120000,
       );
     }
     this.cache.clear();
@@ -73,7 +75,7 @@ export class HydraStore {
   }
 
   async removeRule(rule) {
-    await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) WHERE r.rule = $rule DELETE r", { rule });
+    await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) WHERE r.rule = $rule DELETE r", { rule }, 180000);
     for (const [k, s] of this.pairs) { s.delete(rule); if (!s.size) this.pairs.delete(k); }
     this.cache.clear();
   }

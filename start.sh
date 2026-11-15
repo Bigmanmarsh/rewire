@@ -3,6 +3,9 @@
 # random per boot, readable only inside the container, and never printed.
 set -eu
 BASE=/tmp/hydra
+# Start from an empty store every boot: the app rebuilds the graph itself, and a store left over
+# from a crashed run can hold a stale cell lease ("cell cell-0 is not owned by this node").
+rm -rf "$BASE/store" "$BASE/cache"
 mkdir -p "$BASE/store" "$BASE/cache" "$BASE/secrets"
 umask 077
 head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n' >"$BASE/secrets/auth-token"
