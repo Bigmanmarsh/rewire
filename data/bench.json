@@ -1,0 +1,1578 @@
+{
+ "when": "2026-11-15T17:47:37.147Z",
+ "paragraphs": 5911,
+ "train": 200,
+ "test": 400,
+ "rounds": 10,
+ "perRound": 20,
+ "metric": "both gold paragraphs in the top 5, held-out test split",
+ "vector": {
+  "acc": 0.495,
+  "n": 198,
+  "total": 400,
+  "byType": {
+   "bridge": 0.40625,
+   "comparison": 0.85
+  }
+ },
+ "bm25": {
+  "acc": 0.535,
+  "n": 214,
+  "total": 400,
+  "byType": {
+   "bridge": 0.5125,
+   "comparison": 0.625
+  }
+ },
+ "hybrid": {
+  "acc": 0.6475,
+  "n": 259,
+  "total": 400,
+  "byType": {
+   "bridge": 0.596875,
+   "comparison": 0.85
+  },
+  "alpha": 0.5
+ },
+ "rewire": [
+  {
+   "round": 0,
+   "test": {
+    "acc": 0.725,
+    "n": 290,
+    "total": 400,
+    "byType": {
+     "bridge": 0.6875,
+     "comparison": 0.875
+    }
+   },
+   "edges": 2880,
+   "rules": [
+    "exact"
+   ],
+   "params": {
+    "seeds": 5,
+    "lam": 0.2,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.05,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "adopted": [],
+   "rejected": []
+  },
+  {
+   "round": 1,
+   "batch": 20,
+   "seen": 20,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "surname",
+     "label": "Surname only",
+     "support": 5,
+     "gain": -1,
+     "trust": 0.5
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 7,
+   "trainHits": 16,
+   "params": {
+    "seeds": 5,
+    "lam": 0.45,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7975,
+    "n": 319,
+    "total": 400,
+    "byType": {
+     "bridge": 0.76875,
+     "comparison": 0.9125
+    }
+   }
+  },
+  {
+   "round": 2,
+   "batch": 20,
+   "seen": 40,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "surname",
+     "label": "Surname only",
+     "support": 3,
+     "gain": 0,
+     "trust": 0.5
+    }
+   ],
+   "misses": 8,
+   "trainHits": 34,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.753125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 3,
+   "batch": 20,
+   "seen": 60,
+   "adopted": [
+    {
+     "rule": "surname",
+     "label": "Surname only",
+     "support": 7,
+     "gain": 3,
+     "trust": 0.5,
+     "edges": 15491
+    }
+   ],
+   "rejected": [
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 4,
+     "gain": 2,
+     "trust": 0.5
+    },
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 1,
+     "gain": 1,
+     "trust": 1
+    }
+   ],
+   "misses": 12,
+   "trainHits": 51,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.81,
+    "n": 324,
+    "total": 400,
+    "byType": {
+     "bridge": 0.775,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 4,
+   "batch": 20,
+   "seen": 80,
+   "adopted": [
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 6,
+     "gain": 1,
+     "trust": 1,
+     "edges": 2054
+    }
+   ],
+   "rejected": [],
+   "misses": 15,
+   "trainHits": 66,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren"
+   ],
+   "edges": 20425,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  },
+  {
+   "round": 5,
+   "batch": 20,
+   "seen": 100,
+   "adopted": [],
+   "rejected": [],
+   "misses": 18,
+   "trainHits": 82,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren"
+   ],
+   "edges": 20425,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  },
+  {
+   "round": 6,
+   "batch": 20,
+   "seen": 120,
+   "adopted": [],
+   "rejected": [],
+   "misses": 22,
+   "trainHits": 98,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren"
+   ],
+   "edges": 20425,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  },
+  {
+   "round": 7,
+   "batch": 20,
+   "seen": 140,
+   "adopted": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 1,
+     "gain": 1,
+     "trust": 1,
+     "edges": 335
+    }
+   ],
+   "rejected": [],
+   "misses": 29,
+   "trainHits": 112,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1,
+     "comma": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren",
+    "comma"
+   ],
+   "edges": 20760,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  },
+  {
+   "round": 8,
+   "batch": 20,
+   "seen": 160,
+   "adopted": [],
+   "rejected": [],
+   "misses": 31,
+   "trainHits": 129,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1,
+     "comma": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren",
+    "comma"
+   ],
+   "edges": 20760,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  },
+  {
+   "round": 9,
+   "batch": 20,
+   "seen": 180,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 37,
+   "trainHits": 143,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1,
+     "comma": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren",
+    "comma"
+   ],
+   "edges": 20760,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  },
+  {
+   "round": 10,
+   "batch": 20,
+   "seen": 200,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 45,
+   "trainHits": 155,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5,
+     "paren": 1,
+     "comma": 1
+    }
+   },
+   "rules": [
+    "exact",
+    "surname",
+    "paren",
+    "comma"
+   ],
+   "edges": 20760,
+   "test": {
+    "acc": 0.8325,
+    "n": 333,
+    "total": 400,
+    "byType": {
+     "bridge": 0.79375,
+     "comparison": 0.9875
+    }
+   }
+  }
+ ],
+ "weights": [
+  {
+   "round": 0,
+   "test": {
+    "acc": 0.725,
+    "n": 290,
+    "total": 400,
+    "byType": {
+     "bridge": 0.6875,
+     "comparison": 0.875
+    }
+   },
+   "edges": 2880,
+   "rules": [
+    "exact"
+   ],
+   "params": {
+    "seeds": 5,
+    "lam": 0.2,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.05,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "adopted": [],
+   "rejected": []
+  },
+  {
+   "round": 1,
+   "batch": 20,
+   "seen": 20,
+   "adopted": [],
+   "rejected": [],
+   "misses": 7,
+   "trainHits": 16,
+   "params": {
+    "seeds": 5,
+    "lam": 0.45,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7975,
+    "n": 319,
+    "total": 400,
+    "byType": {
+     "bridge": 0.76875,
+     "comparison": 0.9125
+    }
+   }
+  },
+  {
+   "round": 2,
+   "batch": 20,
+   "seen": 40,
+   "adopted": [],
+   "rejected": [],
+   "misses": 8,
+   "trainHits": 34,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.753125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 3,
+   "batch": 20,
+   "seen": 60,
+   "adopted": [],
+   "rejected": [],
+   "misses": 12,
+   "trainHits": 48,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.753125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 4,
+   "batch": 20,
+   "seen": 80,
+   "adopted": [],
+   "rejected": [],
+   "misses": 19,
+   "trainHits": 61,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.753125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 5,
+   "batch": 20,
+   "seen": 100,
+   "adopted": [],
+   "rejected": [],
+   "misses": 24,
+   "trainHits": 76,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.753125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 6,
+   "batch": 20,
+   "seen": 120,
+   "adopted": [],
+   "rejected": [],
+   "misses": 28,
+   "trainHits": 92,
+   "params": {
+    "seeds": 2,
+    "lam": 0.45,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.753125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 7,
+   "batch": 20,
+   "seen": 140,
+   "adopted": [],
+   "rejected": [],
+   "misses": 36,
+   "trainHits": 106,
+   "params": {
+    "seeds": 8,
+    "lam": 0.6,
+    "inW": 0,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7875,
+    "n": 315,
+    "total": 400,
+    "byType": {
+     "bridge": 0.75,
+     "comparison": 0.9375
+    }
+   }
+  },
+  {
+   "round": 8,
+   "batch": 20,
+   "seen": 160,
+   "adopted": [],
+   "rejected": [],
+   "misses": 40,
+   "trainHits": 124,
+   "params": {
+    "seeds": 5,
+    "lam": 0.6,
+    "inW": 0.5,
+    "damp": 0.3,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.7625,
+     "comparison": 0.9125
+    }
+   }
+  },
+  {
+   "round": 9,
+   "batch": 20,
+   "seen": 180,
+   "adopted": [],
+   "rejected": [],
+   "misses": 42,
+   "trainHits": 138,
+   "params": {
+    "seeds": 5,
+    "lam": 0.6,
+    "inW": 0.5,
+    "damp": 0.3,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.7625,
+     "comparison": 0.9125
+    }
+   }
+  },
+  {
+   "round": 10,
+   "batch": 20,
+   "seen": 200,
+   "adopted": [],
+   "rejected": [],
+   "misses": 51,
+   "trainHits": 149,
+   "params": {
+    "seeds": 5,
+    "lam": 0.6,
+    "inW": 0.5,
+    "damp": 0.3,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.7925,
+    "n": 317,
+    "total": 400,
+    "byType": {
+     "bridge": 0.7625,
+     "comparison": 0.9125
+    }
+   }
+  }
+ ],
+ "flat": [
+  {
+   "round": 0,
+   "test": {
+    "acc": 0.5075,
+    "n": 203,
+    "total": 400,
+    "byType": {
+     "bridge": 0.415625,
+     "comparison": 0.875
+    }
+   },
+   "edges": 2880,
+   "rules": [
+    "exact"
+   ],
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.05,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "adopted": [],
+   "rejected": []
+  },
+  {
+   "round": 1,
+   "batch": 20,
+   "seen": 20,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 3,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "surname",
+     "label": "Surname only",
+     "support": 8,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 10,
+   "trainHits": 12,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.5325,
+    "n": 213,
+    "total": 400,
+    "byType": {
+     "bridge": 0.428125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 2,
+   "batch": 20,
+   "seen": 40,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 4,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "surname",
+     "label": "Surname only",
+     "support": 9,
+     "gain": 0,
+     "trust": 0.5
+    }
+   ],
+   "misses": 14,
+   "trainHits": 26,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1
+    }
+   },
+   "rules": [
+    "exact"
+   ],
+   "edges": 2880,
+   "test": {
+    "acc": 0.5325,
+    "n": 213,
+    "total": 400,
+    "byType": {
+     "bridge": 0.428125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 3,
+   "batch": 20,
+   "seen": 60,
+   "adopted": [
+    {
+     "rule": "surname",
+     "label": "Surname only",
+     "support": 17,
+     "gain": 1,
+     "trust": 0.5,
+     "edges": 15491
+    }
+   ],
+   "rejected": [
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 6,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 3,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 25,
+   "trainHits": 36,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 4,
+   "batch": 20,
+   "seen": 80,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 1,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 10,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 37,
+   "trainHits": 43,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 5,
+   "batch": 20,
+   "seen": 100,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 3,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 11,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 46,
+   "trainHits": 54,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 6,
+   "batch": 20,
+   "seen": 120,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 3,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 12,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 56,
+   "trainHits": 64,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 7,
+   "batch": 20,
+   "seen": 140,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 5,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 4,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 15,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 71,
+   "trainHits": 69,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 8,
+   "batch": 20,
+   "seen": 160,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 6,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 6,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 2,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 18,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 78,
+   "trainHits": 82,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 9,
+   "batch": 20,
+   "seen": 180,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 8,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 6,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 3,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 19,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 88,
+   "trainHits": 92,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  },
+  {
+   "round": 10,
+   "batch": 20,
+   "seen": 200,
+   "adopted": [],
+   "rejected": [
+    {
+     "rule": "comma",
+     "label": "Before the comma",
+     "support": 9,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "the",
+     "label": "Drop leading 'The'",
+     "support": 7,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "acronym",
+     "label": "Acronym",
+     "support": 3,
+     "gain": 0,
+     "trust": 1
+    },
+    {
+     "rule": "paren",
+     "label": "Drop (qualifier)",
+     "support": 22,
+     "gain": 0,
+     "trust": 1
+    }
+   ],
+   "misses": 102,
+   "trainHits": 98,
+   "params": {
+    "seeds": 5,
+    "lam": 0,
+    "inW": 0.5,
+    "damp": 0,
+    "mu": 0.2,
+    "rw": {
+     "exact": 1,
+     "surname": 0.5
+    }
+   },
+   "rules": [
+    "exact",
+    "surname"
+   ],
+   "edges": 18371,
+   "test": {
+    "acc": 0.535,
+    "n": 214,
+    "total": 400,
+    "byType": {
+     "bridge": 0.43125,
+     "comparison": 0.95
+    }
+   }
+  }
+ ],
+ "orders": [
+  {
+   "first": 0.7525,
+   "final": 0.8275,
+   "rules": [
+    "exact",
+    "surname",
+    "paren"
+   ]
+  },
+  {
+   "first": 0.725,
+   "final": 0.8325,
+   "rules": [
+    "exact",
+    "surname",
+    "paren",
+    "comma",
+    "acronym"
+   ]
+  },
+  {
+   "first": 0.785,
+   "final": 0.8275,
+   "rules": [
+    "exact",
+    "comma",
+    "paren"
+   ]
+  },
+  {
+   "first": 0.7575,
+   "final": 0.795,
+   "rules": [
+    "exact",
+    "the",
+    "paren",
+    "surname"
+   ]
+  },
+  {
+   "first": 0.745,
+   "final": 0.835,
+   "rules": [
+    "exact",
+    "paren",
+    "comma"
+   ]
+  }
+ ]
+}
