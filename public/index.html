@@ -320,7 +320,7 @@ function drawGraph(x, newLinks) {
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   const inTop = new Set(x.top.map((t) => t.id)), gold = new Set(x.q.gold);
   const ids = x.nodes.map((n) => n.id);
-  const cx = W / 2, cy = H / 2 + 4, RX = Math.max(60, W / 2 - 130), RY = H / 2 - 44;
+  const cx = W / 2, cy = H / 2 + 4, RX = Math.max(60, W / 2 - 75), RY = H / 2 - 50;
   const pos = { q: [cx, cy] };
   ids.forEach((id, i) => { const a = -Math.PI / 2 + (2 * Math.PI * i) / ids.length; pos[id] = [cx + RX * Math.cos(a), cy + RY * Math.sin(a)]; });
   const curve = (a, b) => { const [x1, y1] = pos[a], [x2, y2] = pos[b]; const mx = (x1 + x2) / 2, my = (y1 + y2) / 2; const k = 0.25; return `M${x1},${y1} Q${mx + (cy - my) * k + (cx - mx) * 0.3},${my + (mx - cx) * k + (cy - my) * 0.3} ${x2},${y2}`; };
@@ -338,9 +338,9 @@ function drawGraph(x, newLinks) {
   for (const id of ids) {
     const [px, py] = pos[id];
     const cls = gold.has(id) ? (inTop.has(id) ? "gold" : "miss") : inTop.has(id) ? "top" : "";
-    const t = byTitle(x, id), short = t.length > 22 ? t.slice(0, 21) + "…" : t;
-    const anchor = px < cx - 10 ? "end" : px > cx + 10 ? "start" : "middle";
-    const dx = anchor === "end" ? -14 : anchor === "start" ? 14 : 0, dy = anchor === "middle" ? (py < cy ? -14 : 22) : 4;
+    const t = byTitle(x, id), short = t.length > 20 ? t.slice(0, 19) + "…" : t;
+    // labels sit centred above/below their node so they never run off the card edge
+    const anchor = "middle", dx = 0, dy = py < cy - 5 ? -15 : 24;
     g += `<g class="node ${cls}"><circle cx="${px}" cy="${py}" r="${gold.has(id) ? 10 : 8}"/><text x="${px + dx}" y="${py + dy}" text-anchor="${anchor}">${esc(short)}</text><title>${esc(t)}</title></g>`;
   }
   svg.innerHTML = g;
