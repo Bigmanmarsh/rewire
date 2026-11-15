@@ -4,6 +4,9 @@
 // queries (out and in); results are paged (we follow next_cursor every time); UNWIND batches cap
 // at 1024 rows.
 const PAGE = 4096, BATCH = 1000;
+const RULE_NO = { exact: 0, paren: 1, the: 2, comma: 3, surname: 4, firstlast: 5, acronym: 6, nopunct: 7 };
+// one stable integer id per (from, to, rule) edge
+export const edgeId = (a, b, r) => (RULE_NO[r] ?? 9) * 1e8 + a * 1e4 + b;
 
 export class HydraStore {
   constructor({ url, token, cell = "cell-0", graph = "default", timeoutMs = 20000 }) {
@@ -54,11 +57,12 @@ export class HydraStore {
       const k = a * 1e6 + b;
       if (!this.pairs.has(k)) { this.pairs.set(k, new Set()); added++; }
       const s = this.pairs.get(k);
-      if (!s.has(r)) { s.add(r); fresh.push({ a, b, r }); }
+      if (!s.has(r)) { s.add(r); fresh.push({ id: edgeId(a, b, r), a, b, r }); }
     }
     for (let i = 0; i < fresh.length; i += BATCH) {
       await this.q(
-        "UNWIND $rows AS row MATCH (a:Doc {id: row.a}), (b:Doc {id: row.b}) MERGE (a)-[e:MENTIONS {rule: row.r}]->(b)",
+        // HydraDB 0.4.0: a batched relationship MERGE must key on {id: row.<field>}
+        "UNWIND $rows AS row MATCH (a:Doc {id: row.a}), (b:Doc {id: row.b}) MERGE (a)-[e:MENTIONS {id: row.id}]->(b) SET e.rule = row.r",
         { rows: fresh.slice(i, i + BATCH) },
       );
     }
@@ -104,7 +108,8 @@ export class HydraStore {
   }
 
   async edgeCount() { return this.pairs.size; }
-  async dbEdgeCount() { const r = await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) RETURN count(r) AS n"); return r[0]?.n ?? 0; }
+  // count() is not supported by the 0.4.0 query engine, so count the (paged) rows instead
+  async dbEdgeCount() { return (await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) RETURN r.id AS id")).length; }
 
   // Explanation path for the UI: the actual 1-hop link HydraDB holds between two docs.
   async link(a, b) {

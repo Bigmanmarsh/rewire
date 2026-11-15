@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { RULES, tokens } from "../src/core.js";
 import { MemoryStore } from "../src/stores/memory.js";
-import { rowsOf } from "../src/stores/hydradb.js";
+import { rowsOf, edgeId } from "../src/stores/hydradb.js";
 
 test("alias rules produce the documented aliases", () => {
   assert.deepEqual(RULES.paren.alias("Ed Wood (film)"), ["ed wood"]);
@@ -22,11 +22,18 @@ test("memory store: pairs count once, rules roll back cleanly", async () => {
   await s.removeRule("paren");
   assert.equal(await s.edgeCount(), 2);
   const nb = await s.neighbors([2]);
-  assert.deepEqual(nb.out.get(2), [3]);
-  assert.deepEqual(nb.in.get(2), [1]);
+  assert.deepEqual(nb.out.get(2).map(([id, rules]) => [id, [...rules]]), [[3, ["exact"]]]);
+  assert.deepEqual(nb.in.get(2).map(([id, rules]) => [id, [...rules]]), [[1, ["exact"]]]);
 });
 
 test("HydraDB HTTP rows are unwrapped from tagged values", () => {
   const body = { columns: ["a", "b", "l"], rows: [[{ type: "integer", value: 7 }, { type: "string", value: "x" }, { type: "list", value: [{ type: "integer", value: 1 }] }]], next_cursor: null };
   assert.deepEqual(rowsOf(body), [{ a: 7, b: "x", l: [1] }]);
+});
+
+test("edge ids are unique per (from, to, rule)", () => {
+  const seen = new Set();
+  for (const r of ["exact", "paren", "surname"]) for (const [a, b] of [[0, 1], [1, 0], [5910, 5909]]) seen.add(edgeId(a, b, r));
+  assert.equal(seen.size, 9);
+  assert.ok(Number.isSafeInteger(edgeId(5910, 5910, "nopunct")));
 });
