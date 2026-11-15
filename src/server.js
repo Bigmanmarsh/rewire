@@ -26,19 +26,25 @@ const bench = await json("bench.json").catch(() => null);
 const train = questions.filter((q) => q.split === "train");
 const test = questions.filter((q) => q.split === "test");
 
-let serve = new MemoryStore();
-if (STORE === "hydra") {
-  const token = (await readFile(process.env.HYDRA_TOKEN_FILE || "/tmp/hydra/secrets/auth-token", "utf8")).trim();
-  serve = new HydraStore({ url: process.env.HYDRA_URL || "http://127.0.0.1:8443", token });
-  await waitFor(serve);
-  const t0 = Date.now();
-  await serve.loadDocs(docs);
-  console.log(`[rewire] loaded ${docs.length} Doc nodes into HydraDB in ${Date.now() - t0}ms`);
+// The port opens first (the page shows "booting"), then the graph is loaded into HydraDB.
+let serve, L, vector, ready = false, bootError = null;
+async function boot() {
+  serve = new MemoryStore();
+  if (STORE === "hydra") {
+    const token = (await readFile(process.env.HYDRA_TOKEN_FILE || "/tmp/hydra/secrets/auth-token", "utf8")).trim();
+    serve = new HydraStore({ url: process.env.HYDRA_URL || "http://127.0.0.1:8443", token });
+    await waitFor(serve);
+    const t0 = Date.now();
+    await serve.loadDocs(docs);
+    console.log(`[rewire] loaded ${docs.length} Doc nodes into HydraDB in ${Date.now() - t0}ms`);
+  }
+  L = new Learner({ corpus, store: new MemoryStore(), serve, questions, simsAll, ruleEdges });
+  const V = new Learner({ corpus, store: new MemoryStore(), questions, simsAll, ruleEdges });
+  await V.reset({ withGraph: false });
+  vector = await V.evaluate(test);
+  await reset();
+  ready = true;
 }
-const L = new Learner({ corpus, store: new MemoryStore(), serve, questions, simsAll, ruleEdges });
-const V = new Learner({ corpus, store: new MemoryStore(), questions, simsAll, ruleEdges });
-await V.reset({ withGraph: false });
-const vector = await V.evaluate(test);
 
 let curve = [];
 let busy = Promise.resolve();
@@ -50,8 +56,6 @@ async function reset() {
   curve = [{ round: 0, test: await L.evaluate(test), edges: await L.serve.edgeCount(), rules: [...L.rules], adopted: [], rejected: [], params: JSON.parse(JSON.stringify(L.params)) }];
   console.log(`[rewire] reset in ${Date.now() - t0}ms, round 0 test ${(curve[0].test.acc * 100).toFixed(1)}%`);
 }
-await reset();
-
 const view = (id) => ({ id, title: docs[id].title, text: docs[id].text.slice(0, 280) });
 
 // Everything the UI needs to draw one question: top 5, why each is there, and the subgraph.
@@ -88,6 +92,7 @@ const app = express();
 app.use(express.json({ limit: "20kb" }));
 app.use(express.static(fileURLToPath(new URL("../public/", import.meta.url))));
 app.get("/healthz", (_, res) => res.send("ok"));
+app.use("/api", (req, res, next) => (ready ? next() : res.status(503).json({ error: bootError ? `boot failed: ${bootError}` : "booting: loading the graph into HydraDB" })));
 app.get("/api/state", (_, res) => res.json(state()));
 
 // Training questions the graph currently gets wrong and has not learned from yet: the demo picks one.
@@ -173,10 +178,13 @@ app.get("/api/parity", (req, res) => locked(async () => {
 }).catch((e) => res.status(500).json({ error: e.message })));
 
 app.listen(PORT, () => console.log(`[rewire] listening on :${PORT} (store=${STORE})`));
+boot().catch((e) => { bootError = e.message; console.error("[rewire] BOOT FAILED:", e); });
 
 async function waitFor(store) {
-  for (let i = 0; i < 120; i++) {
-    try { await store.q("RETURN 1 AS ok"); return; } catch { await new Promise((r) => setTimeout(r, 1000)); }
+  let last;
+  for (let i = 0; i < 90; i++) {
+    try { await store.q("MATCH (n:Doc) RETURN count(n) AS n"); console.log(`[rewire] HydraDB answering after ${i}s`); return; }
+    catch (e) { last = e; if (i % 10 === 0) console.log(`[rewire] waiting for HydraDB: ${e.message}`); await new Promise((r) => setTimeout(r, 1000)); }
   }
-  throw new Error("HydraDB did not come up in 120s");
+  throw new Error(`HydraDB did not answer in 90s: ${last?.message}`);
 }

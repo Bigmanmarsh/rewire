@@ -403,8 +403,9 @@ $("reset").addEventListener("click", async () => {
 addEventListener("resize", () => { if (S) drawChart(S); if (current) drawGraph(current, []); });
 
 (async () => {
-  for (let i = 0; i < 60; i++) {
-    try { renderState(await api("/api/state")); break; } catch { $("storeBadge").textContent = "waking the server…"; await new Promise((r) => setTimeout(r, 3000)); }
+  for (let i = 0; i < 200; i++) {
+    try { renderState(await api("/api/state")); break; }
+    catch (e) { $("storeBadge").textContent = /boot/.test(e.message) ? e.message : "waking the free server (up to a minute)…"; await new Promise((r) => setTimeout(r, 3000)); }
   }
   await loadMisses();
 })();
