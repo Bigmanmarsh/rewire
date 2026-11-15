@@ -109,7 +109,7 @@ export class HydraStore {
 
   async edgeCount() { return this.pairs.size; }
   // count() is not supported by the 0.4.0 query engine, so count the (paged) rows instead
-  async dbEdgeCount() { return (await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) RETURN r.id AS id")).length; }
+  async dbEdgeCount() { return (await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) RETURN r.rule AS rule")).length; }
 
   // Explanation path for the UI: the actual 1-hop link HydraDB holds between two docs.
   async link(a, b) {

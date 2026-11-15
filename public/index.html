@@ -359,7 +359,7 @@ $("missPick").addEventListener("change", async (e) => { if (!e.target.value) ret
 
 $("learn").addEventListener("click", async () => {
   const btn = $("learn");
-  btn.disabled = true; btn.textContent = "Diagnosing misses, trying rules, rewiring the graph…";
+  btn.disabled = true; btn.textContent = "Diagnosing misses, trying rules, rewiring HydraDB… (up to a minute on the free server)";
   try {
     const i = current ? current.q.i : undefined;
     const r = await api("/api/learn", { method: "POST", body: JSON.stringify({ i }) });
