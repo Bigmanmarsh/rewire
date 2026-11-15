@@ -5,7 +5,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY src ./src
 COPY public ./public
-COPY data/corpus.json data/questions.json data/sims.f32 data/rule-edges.json data/bench.json ./data/
+COPY data/corpus.json data/questions.json data/rule-edges.json data/bench.json ./data/
+COPY data/sims ./data/sims
 
 FROM ghcr.io/hydra-db/hydradb:0.4.0
 USER root

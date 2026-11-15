@@ -11,6 +11,7 @@ import { Corpus, topK, hit } from "../src/core.js";
 import { Learner } from "../src/learn.js";
 import { MemoryStore } from "../src/stores/memory.js";
 import { BM25 } from "../src/bm25.js";
+import { readSims } from "../src/data.js";
 
 const dataDir = new URL("../data/", import.meta.url);
 const load = async (f) => JSON.parse(await readFile(new URL(f, dataDir), "utf8"));
@@ -19,7 +20,7 @@ const f32 = async (f) => { const b = await readFile(new URL(f, dataDir)); return
 const docs = await load("corpus.json");
 const questions = (await load("questions.json")).filter((q) => q.gold.every((g) => g !== undefined));
 const corpus = new Corpus(docs, await f32("emb-docs.f32"));
-const simsAll = await f32("sims.f32");
+const simsAll = await readSims(dataDir);
 const ruleEdges = await load("rule-edges.json");
 const train = questions.filter((q) => q.split === "train");
 const test = questions.filter((q) => q.split === "test");

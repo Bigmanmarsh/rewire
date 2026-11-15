@@ -4,6 +4,7 @@ import express from "express";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { Corpus, RULES, hit } from "./core.js";
+import { readSims } from "./data.js";
 import { Learner } from "./learn.js";
 import { MemoryStore } from "./stores/memory.js";
 import { HydraStore } from "./stores/hydradb.js";
@@ -19,7 +20,7 @@ const STORE = process.env.STORE || "memory";
 const docs = await json("corpus.json");
 const questions = (await json("questions.json")).filter((q) => q.gold.every((g) => g !== undefined));
 const corpus = new Corpus(docs, null); // live server uses precomputed similarities, no model at runtime
-const simsAll = await f32("sims.f32");
+const simsAll = await readSims(dataDir);
 const ruleEdges = await json("rule-edges.json");
 const bench = await json("bench.json").catch(() => null);
 const train = questions.filter((q) => q.split === "train");
