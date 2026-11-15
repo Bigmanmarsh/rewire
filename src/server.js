@@ -92,6 +92,38 @@ const app = express();
 app.use(express.json({ limit: "20kb" }));
 app.use(express.static(fileURLToPath(new URL("../public/", import.meta.url))));
 app.get("/healthz", (_, res) => res.send("ok"));
+// Fixed dialect probe on throwaway :Probe nodes (no user input reaches these queries).
+app.get("/probe", async (req, res) => {
+  if (!(serve instanceof HydraStore)) return res.json({ error: "not on HydraDB" });
+  const R = [{ id: 900001, t: "a" }, { id: 900002, t: "b" }, { id: 900003, t: "c" }];
+  const E = [{ a: 900001, b: 900002, r: "exact" }, { a: 900002, b: 900003, r: "paren" }];
+  const tests = [
+    ["count label", "MATCH (n:Doc) RETURN count(n) AS n"],
+    ["count all", "MATCH (n) RETURN count(n) AS n"],
+    ["return id", "MATCH (n:Doc) RETURN n.id AS id LIMIT 2"],
+    ["merge literal", "MERGE (n {id: 900009}) SET n:Probe"],
+    ["unwind merge nodes", "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Probe, n.t = row.t", { rows: R }],
+    ["unwind merge nodes (no prop)", "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Probe", { rows: R }],
+    ["count probe", "MATCH (n:Probe) RETURN count(n) AS n"],
+    ["edge literal", "MATCH (a:Probe {id: 900001}), (b:Probe {id: 900002}) MERGE (a)-[e:MENTIONS {rule: 'lit'}]->(b)"],
+    ["edge unwind prop-in-map", "UNWIND $rows AS row MATCH (a:Probe {id: row.a}), (b:Probe {id: row.b}) MERGE (a)-[e:MENTIONS {rule: row.r}]->(b)", { rows: E }],
+    ["edge unwind where", "UNWIND $rows AS row MATCH (a:Probe), (b:Probe) WHERE a.id = row.a AND b.id = row.b MERGE (a)-[e:MENTIONS]->(b) SET e.rule = row.r", { rows: E }],
+    ["edge unwind create", "UNWIND $rows AS row MATCH (a:Probe {id: row.a}), (b:Probe {id: row.b}) CREATE (a)-[e:MENTIONS]->(b) SET e.rule = row.r", { rows: E }],
+    ["edge unwind merge set", "UNWIND $rows AS row MATCH (a:Probe {id: row.a}), (b:Probe {id: row.b}) MERGE (a)-[e:MENTIONS]->(b) SET e.rule = row.r", { rows: E }],
+    ["out IN", "MATCH (a:Probe)-[r:MENTIONS]->(b:Probe) WHERE a.id IN $ids RETURN a.id AS a, b.id AS b, r.rule AS rule", { ids: [900001, 900002] }],
+    ["in IN", "MATCH (a:Probe)<-[r:MENTIONS]-(b:Probe) WHERE a.id IN $ids RETURN a.id AS a, b.id AS b, r.rule AS rule", { ids: [900002, 900003] }],
+    ["count edges", "MATCH (a:Probe)-[r:MENTIONS]->(b:Probe) RETURN count(r) AS n"],
+    ["delete by rule", "MATCH (a:Probe)-[r:MENTIONS]->(b:Probe) WHERE r.rule = $rule DELETE r", { rule: "paren" }],
+    ["count after delete", "MATCH (a:Probe)-[r:MENTIONS]->(b:Probe) RETURN r.rule AS rule"],
+    ["delete all probe edges", "MATCH (a:Probe)-[r:MENTIONS]->(b:Probe) DELETE r"],
+  ];
+  const out = [];
+  for (const [name, q, p] of tests) {
+    try { const rows = await serve.q(q, p || {}); out.push({ name, ok: true, rows: rows.slice(0, 6) }); }
+    catch (e) { out.push({ name, ok: false, error: e.message.slice(0, 220) }); }
+  }
+  res.json(out);
+});
 app.use("/api", (req, res, next) => (ready ? next() : res.status(503).json({ error: bootError ? `boot failed: ${bootError}` : "booting: loading the graph into HydraDB" })));
 app.get("/api/state", (_, res) => res.json(state()));
 
@@ -183,7 +215,7 @@ boot().catch((e) => { bootError = e.message; console.error("[rewire] BOOT FAILED
 async function waitFor(store) {
   let last;
   for (let i = 0; i < 90; i++) {
-    try { await store.q("MATCH (n:Doc) RETURN count(n) AS n"); console.log(`[rewire] HydraDB answering after ${i}s`); return; }
+    try { await store.q("MATCH (n:Doc) RETURN n.id AS id LIMIT 1"); console.log(`[rewire] HydraDB answering after ${i}s`); return; }
     catch (e) { last = e; if (i % 10 === 0) console.log(`[rewire] waiting for HydraDB: ${e.message}`); await new Promise((r) => setTimeout(r, 1000)); }
   }
   throw new Error(`HydraDB did not answer in 90s: ${last?.message}`);
