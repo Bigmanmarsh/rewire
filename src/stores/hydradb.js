@@ -19,13 +19,14 @@ export class HydraStore {
   // Runs one statement and follows next_cursor so a large result is never silently cut short.
   async q(query, parameters = {}) {
     const all = [];
-    let cursor;
+    let cursor, queryId;
     for (let page = 0; page < 100; page++) {
       this.queries++;
       const res = await fetch(`${this.url}/v1/graphs/${this.graph}/query`, {
         method: "POST",
         headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ cell_id: this.cell, query, parameters, page_size: PAGE, ...(cursor != null ? { cursor } : {}) }),
+        // later pages must name the first page's query_id along with the cursor
+        body: JSON.stringify({ cell_id: this.cell, query, parameters, page_size: PAGE, ...(cursor != null ? { cursor, query_id: queryId } : {}) }),
         signal: AbortSignal.timeout(this.timeoutMs),
       });
       const text = await res.text();
@@ -34,6 +35,7 @@ export class HydraStore {
       all.push(...rowsOf(body));
       if (body.next_cursor == null) return all;
       cursor = body.next_cursor;
+      queryId = body.query_id;
     }
     throw new Error("HydraDB result exceeded 100 pages; refusing a partial answer");
   }
