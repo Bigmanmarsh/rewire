@@ -30,7 +30,7 @@ Task: HotpotQA multi-hop questions over one shared pool of **5,911 paragraphs**.
 
 **Not a one-off.** Five shuffled training orders end at 82.8%, 83.3%, 82.8%, 79.5% and 83.5%.
 
-**Same numbers live on HydraDB.** On the deployed container the curve reproduces round by round (72.5 → 79.75 → 79.25 → 81.0 → 83.25%). `/api/parity` answers all 400 held-out questions through HydraDB and through the in-memory reference store. Result: **400/400 identical top-5 lists**, both at round 0 and after learning (rules `exact`, `surname`, `paren`). HydraDB stores one edge per (pair, rule): 2,880 + 16,765 + 2,520 = 22,165 edges covering 20,425 distinct paragraph pairs, which matches the reference exactly.
+**Same numbers live on HydraDB.** On the deployed container the curve reproduces round by round (72.5 → 79.75 → 79.25 → 81.0 → 83.25%). `/api/parity` answers all 400 held-out questions through HydraDB, reading every neighbour list fresh from HydraDB with no cache, and through the in-memory reference store. Result: **400/400 identical top-5 lists** at round 0, after learning (rules `exact`, `surname`, `paren`), and again after a reset. HydraDB stores one edge per (pair, rule): 2,880 + 16,765 + 2,520 = 22,165 edges covering 20,425 distinct paragraph pairs, which matches the reference exactly.
 
 **Load (free Render instance, 0.1 CPU / 512 MB, HydraDB and the app in one container).** 300 question lookups at concurrency 20: **0 errors**, 11 requests/s, p50 1.7 s, p95 3.4 s, p99 4.3 s. Requests are serialised behind one lock so learning and reading never interleave, so latency here is mostly queueing.
 
@@ -80,9 +80,9 @@ The `data/` folder ships precomputed (except the raw embeddings), so `npm run be
 | Small rule space | The learner picks from 8 hand-written alias templates and their trust weights. It discovers which ones a corpus needs, but it does not invent new kinds of rules. |
 | Plateau | Held-out accuracy stops rising after about 80 training questions (83.3%), because the useful rules have all been found. |
 | Baselines | MiniLM, BM25 and a tuned hybrid. No cross-encoder reranker or larger embedding model was tried; those would raise every row, Rewire's seeds included. |
-| Live demo is one shared session | All visitors share one learning state. *Reset demo* replays it from round 0. |
+| Live demo is one shared session | All visitors share one learning state. *Reset demo* replays it from round 0, which takes about 2 minutes on the free box because HydraDB deletes go in chunks under its 30-second query limit. A round that writes thousands of links takes about a minute. |
 | Free hosting | Render free tier: sleeps after 15 min idle (the first load takes about 50 s) and the disk is wiped on restart, so the graph is rebuilt in HydraDB at boot. |
-| HydraDB 0.4.0 dialect | No undirected patterns, no `count()`, and batched edge `MERGE` must key on an `id`. The store is written around these limits and fails loudly instead of truncating. |
+| HydraDB 0.4.0 dialect | No undirected patterns, no `count()`, batched edge `MERGE` must key on an `id`, cursor pages must repeat the `query_id`, and queries stop after 30 s. The store is written around these limits and fails loudly instead of truncating. |
 | No free-text questions live | The live server uses precomputed MiniLM similarities for the 600 benchmark questions, which keeps the box under 512 MB. Free-text questions would need the model loaded at runtime. |
 
 ## Credits
