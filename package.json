@@ -1,0 +1,24 @@
+{
+  "name": "rewire",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch-hotpot.js",
+    "embed": "node scripts/embed.js",
+    "bench": "node scripts/bench.js",
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "precompute": "node scripts/precompute.js"
+  },
+  "dependencies": {
+    "express": "^4.22.3"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "^3.8.1"
+  }
+}
