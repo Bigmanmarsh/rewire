@@ -41,15 +41,27 @@ export class HydraStore {
   }
 
   async loadDocs(docs) {
+    this.nDocs = docs.length;
     for (let i = 0; i < docs.length; i += BATCH) {
       const rows = docs.slice(i, i + BATCH).map((d) => ({ id: d.id, t: d.title }));
       await this.q("UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Doc, n.title = row.t", { rows });
     }
   }
 
-  // delete rule by rule: one statement over ~20k edges is too slow for a 0.1-CPU box
+  // HydraDB stops any query after 30 s server-side, so deletes go in chunks of source nodes.
+  async deleteRule(rule) {
+    try {
+      for (let i = 0; i < this.nDocs; i += 500) {
+        const ids = Array.from({ length: Math.min(500, this.nDocs - i) }, (_, k) => i + k);
+        await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) WHERE a.id IN $ids AND r.rule = $rule DELETE r", { ids, rule }, 120000);
+      }
+    } finally { this.cache.clear(); }
+  }
+
   async clear() {
-    for (const rule of Object.keys(RULE_NO)) await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) WHERE r.rule = $rule DELETE r", { rule }, 180000);
+    const present = new Set();
+    for (const s of this.pairs.values()) for (const r of s) present.add(r);
+    for (const rule of present) await this.deleteRule(rule);
     this.pairs.clear(); this.cache.clear();
   }
 
@@ -62,26 +74,27 @@ export class HydraStore {
       const s = this.pairs.get(k);
       if (!s.has(r)) { s.add(r); fresh.push({ id: edgeId(a, b, r), a, b, r }); }
     }
-    for (let i = 0; i < fresh.length; i += BATCH) {
+    try { for (let i = 0; i < fresh.length; i += BATCH) {
       await this.q(
         // HydraDB 0.4.0: a batched relationship MERGE must key on {id: row.<field>}
         "UNWIND $rows AS row MATCH (a:Doc {id: row.a}), (b:Doc {id: row.b}) MERGE (a)-[e:MENTIONS {id: row.id}]->(b) SET e.rule = row.r",
         { rows: fresh.slice(i, i + BATCH) },
         120000,
       );
-    }
-    this.cache.clear();
+    } } finally { this.cache.clear(); }
     return added;
   }
 
   async removeRule(rule) {
-    await this.q("MATCH (a:Doc)-[r:MENTIONS]->(b:Doc) WHERE r.rule = $rule DELETE r", { rule }, 180000);
+    await this.deleteRule(rule);
     for (const [k, s] of this.pairs) { s.delete(rule); if (!s.size) this.pairs.delete(k); }
     this.cache.clear();
   }
 
   // Neighbour lists come from HydraDB; cached per graph version (cache is cleared on every write).
-  async neighbors(ids) {
+  // fresh: skip the cache and read every list from HydraDB (used by the parity check)
+  async neighbors(ids, { fresh = false } = {}) {
+    if (fresh) for (const id of ids) this.cache.delete(id);
     const need = ids.filter((id) => !this.cache.has(id));
     if (need.length) {
       const got = new Map(need.map((id) => [id, { out: new Map(), in: new Map() }]));

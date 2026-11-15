@@ -197,11 +197,11 @@ app.get("/api/parity", (req, res) => locked(async () => {
   let same = 0;
   const t0 = Date.now();
   for (const q of test) {
-    const a = await L.run(q, L.params, L.rules, false, L.serve);
+    const a = await L.run(q, L.params, L.rules, false, { neighbors: (ids) => L.serve.neighbors(ids, { fresh: true }) });
     const b = await L.run(q, L.params, L.rules, false, ref);
     if (a.join() === b.join()) same++;
   }
-  res.json({ store: state().store, questions: test.length, identicalTop5: same, rules: L.rules, edgesServe: await L.serve.edgeCount(), edgesInDb: serve.dbEdgeCount ? await serve.dbEdgeCount() : null, ms: Date.now() - t0 });
+  res.json({ store: state().store, cache: "bypassed: every neighbour list read fresh from the store", questions: test.length, identicalTop5: same, rules: L.rules, edgesServe: await L.serve.edgeCount(), edgesInDb: serve.dbEdgeCount ? await serve.dbEdgeCount() : null, ms: Date.now() - t0 });
 }).catch((e) => res.status(500).json({ error: e.message })));
 
 app.listen(PORT, () => console.log(`[rewire] listening on :${PORT} (store=${STORE})`));
