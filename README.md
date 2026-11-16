@@ -2,7 +2,7 @@
 
 **Search that rewires its own graph every time it misses.** Built on the open-source [HydraDB](https://github.com/hydra-db/hydradb) engine for the HydraDB Hackathon, Track 1 (self-improving graph).
 
-**Live demo:** https://rewire-iutk.onrender.com · **Video:** {{LOOM_URL}}
+**Live demo:** https://rewire-iutk.onrender.com · **Video:** https://www.loom.com/share/68b8b19e8c8846a8b7e5ab0a84eb78b8
 
 Vector search finds the paragraph that *sounds* like your question. Many real questions need a second paragraph, though: the one the first paragraph *points to*. Rewire stores every paragraph as a HydraDB node with `MENTIONS` links and follows them.
 
