@@ -1,0 +1,102 @@
+{
+ "when": "2026-11-16T07:00:59.581Z",
+ "n": 400,
+ "bootstrap": 10000,
+ "alpha": 0.5,
+ "acc": {
+  "vector": {
+   "acc": 0.495,
+   "ci": [
+    0.4475,
+    0.545
+   ]
+  },
+  "bm25": {
+   "acc": 0.535,
+   "ci": [
+    0.4875,
+    0.585
+   ]
+  },
+  "hybrid": {
+   "acc": 0.6475,
+   "ci": [
+    0.6,
+    0.6925
+   ]
+  },
+  "rewire_round0": {
+   "acc": 0.725,
+   "ci": [
+    0.68,
+    0.7675
+   ]
+  },
+  "rewire_final": {
+   "acc": 0.8325,
+   "ci": [
+    0.795,
+    0.8675
+   ]
+  },
+  "flat_final": {
+   "acc": 0.535,
+   "ci": [
+    0.4875,
+    0.585
+   ]
+  }
+ },
+ "comparisons": {
+  "Rewire final vs best baseline (hybrid)": {
+   "diff": 0.18500000000000005,
+   "ci": [
+    0.135,
+    0.235
+   ],
+   "onlyA": 99,
+   "onlyB": 25,
+   "p": 1.2977559955671685e-11
+  },
+  "Rewire final vs vector search": {
+   "diff": 0.3375,
+   "ci": [
+    0.2875,
+    0.385
+   ],
+   "onlyA": 141,
+   "onlyB": 6,
+   "p": 1.4788331778335865e-34
+  },
+  "Learning gain: Rewire final vs Rewire round 0": {
+   "diff": 0.10750000000000004,
+   "ci": [
+    0.0675,
+    0.1475
+   ],
+   "onlyA": 58,
+   "onlyB": 15,
+   "p": 4.093199116665047e-7
+  },
+  "Graph effect: Rewire final vs same loop, traversal off": {
+   "diff": 0.2975,
+   "ci": [
+    0.25,
+    0.345
+   ],
+   "onlyA": 124,
+   "onlyB": 5,
+   "p": 8.422465982981372e-31
+  },
+  "Rewire round 0 vs best baseline (hybrid)": {
+   "diff": 0.07750000000000001,
+   "ci": [
+    0.0325,
+    0.1225
+   ],
+   "onlyA": 61,
+   "onlyB": 30,
+   "p": 0.0015165131944572315
+  }
+ }
+}

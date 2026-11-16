@@ -13,7 +13,8 @@
     "bench": "node scripts/bench.js",
     "start": "node src/server.js",
     "test": "node --test test/*.test.js",
-    "precompute": "node scripts/precompute.js"
+    "precompute": "node scripts/precompute.js",
+    "stats": "node scripts/stats.js"
   },
   "dependencies": {
     "express": "^4.22.3"

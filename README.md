@@ -28,13 +28,33 @@ Task: HotpotQA multi-hop questions over one shared pool of **5,911 paragraphs**.
 - Round 4 adopts *Drop (qualifier)* at trust 1.
 - Round 7 adopts *Before the comma*, with no held-out change.
 
-**Not a one-off.** Five shuffled training orders end at 82.8%, 83.3%, 82.8%, 79.5% and 83.5%.
+**Not a one-off.** Five shuffled training orders end at 82.8%, 83.3%, 82.8%, 79.5% and 83.5% (mean 82.4%, sd 1.6).
+
+**Statistics (held-out, n = 400).** 95% confidence intervals are from a paired bootstrap over the test questions (10,000 resamples). p-values are from an exact two-sided McNemar test on the questions where the two methods disagree.
+
+| Method | Accuracy | 95% CI |
+|---|---|---|
+| Vector search | 49.5% | 44.8–54.5 |
+| BM25 | 53.5% | 48.8–58.5 |
+| Hybrid BM25 + vector (best baseline) | 64.8% | 60.0–69.3 |
+| Rewire, round 0 | 72.5% | 68.0–76.8 |
+| **Rewire, after learning** | **83.3%** | **79.5–86.8** |
+| Same learning loop, traversal off | 53.5% | 48.8–58.5 |
+
+| Comparison | Difference | 95% CI | Only A right / only B right | McNemar p |
+|---|---|---|---|---|
+| Rewire vs best baseline | **+18.5 pts** | +13.5 to +23.5 | 99 / 25 | 1.3 × 10⁻¹¹ |
+| Learning gain (after learning vs round 0) | **+10.8 pts** | +6.8 to +14.8 | 58 / 15 | 4.1 × 10⁻⁷ |
+| Graph effect (traversal on vs off, same learning) | **+29.8 pts** | +25.0 to +34.5 | 124 / 5 | 8.4 × 10⁻³¹ |
+| Rewire round 0 vs best baseline | +7.8 pts | +3.3 to +12.3 | 61 / 30 | 0.0015 |
+
+The intervals for Rewire after learning and the best baseline do not overlap. The paired tests confirm that the learning gain and the graph effect are not noise. Reproduce with `npm run stats` (about 1 minute; writes `data/stats.json`).
 
 **Same numbers live on HydraDB.** On the deployed container the curve reproduces round by round (72.5 → 79.75 → 79.25 → 81.0 → 83.25%). `/api/parity` answers all 400 held-out questions through HydraDB, reading every neighbour list fresh from HydraDB with no cache, and through the in-memory reference store. Result: **400/400 identical top-5 lists** at round 0, after learning (rules `exact`, `surname`, `paren`), and again after a reset. HydraDB stores one edge per (pair, rule): 2,880 + 16,765 + 2,520 = 22,165 edges covering 20,425 distinct paragraph pairs, which matches the reference exactly.
 
 **Load (free Render instance, 0.1 CPU / 512 MB, HydraDB and the app in one container).** 300 question lookups at concurrency 20: **0 errors**, 11 requests/s, p50 1.7 s, p95 3.4 s, p99 4.3 s. Requests are serialised behind one lock so learning and reading never interleave, so latency here is mostly queueing.
 
-Reproduce: `npm run bench` (offline, ~1 min) · `node scripts/loadtest.js <url> 300 20` · open `<url>/api/parity`.
+Reproduce: `npm run bench` (offline, ~1 min) · `npm run stats` (CIs and significance tests) · `node scripts/loadtest.js <url> 300 20` · open `<url>/api/parity`.
 
 ## How it works
 
@@ -66,6 +86,7 @@ npm run fetch        # HotpotQA rows from the Hugging Face datasets-server (~4 M
 npm run embed        # MiniLM embeddings (~14 min on a laptop CPU; not stored in git)
 npm run precompute   # similarity table + every rule's candidate edges
 npm run bench        # prints the curve and writes data/bench.json
+npm run stats        # 95% CIs + McNemar tests, writes data/stats.json
 npm test
 STORE=memory npm start   # http://localhost:3000, in-memory reference store
 ```
